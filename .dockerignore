@@ -1,0 +1,16 @@
+# La imagen solo necesita app/ y requirements.txt (ver Dockerfile).
+.git
+.gitignore
+venv
+.env
+.env.*
+node_modules
+frontend
+mobile
+interno
+supabase
+specs
+docs
+*.md
+__pycache__
+*.pyc

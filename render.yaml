@@ -1,0 +1,44 @@
+# Blueprint de Render para el backend del portal público.
+#
+# Se usa cuando el backend vive en su propio repositorio (raíz = app/ +
+# requirements.txt + Dockerfile + .dockerignore). Render lee este archivo al
+# crear el Blueprint y deja el servicio configurado; solo faltan los valores
+# marcados con `sync: false`, que se pegan en el panel (nunca en el repo).
+#
+#   Repositorio → New → Blueprint → elegir el repo → Apply
+#
+# Documentación paso a paso: README.md, sección "Despliegue del backend".
+
+services:
+  - type: web
+    name: bnasalud-api
+    runtime: docker
+    plan: free
+    region: oregon
+    # Contexto = raíz del repo (debe contener app/ y requirements.txt).
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      # Obligatorias: el contenedor no arranca en producción sin ellas.
+      - key: ENVIRONMENT
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      # Dominio exacto del portal en Vercel (sin barra final).
+      # Valor de producción: https://saludbarcelona.vercel.app (se pega en el panel de Render, nunca en el repo).
+      - key: CORS_ORIGINS
+        sync: false
+      # Previews de Vercel (*.vercel.app) sin abrir CORS a todo internet.
+      - key: CORS_ORIGIN_REGEX
+        value: ^https://[a-z0-9-]+\.vercel\.app$
+      - key: TZ
+        value: America/Caracas
+      # Recordatorios de cita cada hora: requieren proceso siempre encendido.
+      - key: ENABLE_SCHEDULER
+        value: "false"
